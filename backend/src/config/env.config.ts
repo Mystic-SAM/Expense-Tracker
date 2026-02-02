@@ -1,13 +1,17 @@
 import { getEnv } from "../utils/get-env.js";
 
-const envConfig = () => ({
+/**
+ * Environment configuration. Frozen for runtime immutability.
+ */
+const _Env = {
   NODE_ENV: getEnv("NODE_ENV", "development"),
 
   PORT: getEnv("PORT", "8000"),
   BASE_PATH: getEnv("BASE_PATH", "/api"),
   MONGO_URI: getEnv("MONGO_URI"),
-
   FRONTEND_ORIGIN: getEnv("FRONTEND_ORIGIN", "localhost"),
-});
+} as const;
 
-export const Env = envConfig();
+export const Env = Object.freeze(_Env) as typeof _Env;
+
+export type EnvConfigType = typeof Env;
