@@ -26,8 +26,10 @@ const transactionSchema = new Schema(
       enum: Object.values(TransactionTypeEnum),
       required: true,
     },
-    // store amount as integer cents/paise to preserve precision for monetary values.
-    amountCents: {
+    // Amount is stored in paise (smallest currency unit) to preserve precision.
+    // Setter: Converts INR input to paise before saving to database.
+    // Getter: Converts paise back to INR when retrieving from database.
+    amount: {
       type: Number,
       required: true,
       min: 1,
@@ -78,10 +80,16 @@ const transactionSchema = new Schema(
   },
   {
     timestamps: true,
+    versionKey: false,
     toJSON: { virtuals: true, getters: true },
     toObject: { virtuals: true, getters: true },
   },
 );
+
+// Indexes for common query patterns
+transactionSchema.index({ userId: 1, date: -1 });
+transactionSchema.index({ userId: 1, category: 1 });
+transactionSchema.index({ isRecurring: 1, nextRecurringDate: 1 });
 
 export type TransactionDocument = InferSchemaType<typeof transactionSchema>;
 

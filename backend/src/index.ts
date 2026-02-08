@@ -16,6 +16,7 @@ import authRoutes from "./routes/auth.routes.js";
 import passport from "passport";
 import { passportAuthenticateJwt } from "./config/passport.config.js";
 import userRoutes from "./routes/user.routes.js";
+import transactionRoutes from "./routes/transaction.routes.js";
 
 // Initialize logger (setup file logging and cleanup old logs)
 Logger.initialize();
@@ -73,6 +74,7 @@ app.get(
 
 app.use(`${BASE_PATH}/auth`, authRoutes);
 app.use(`${BASE_PATH}/user`, passportAuthenticateJwt, userRoutes);
+app.use(`${BASE_PATH}/transaction`, passportAuthenticateJwt, transactionRoutes);
 
 /**
  * 404 handler for undefined routes

@@ -26,6 +26,7 @@ const reportSettingSchema = new Schema(
   },
   {
     timestamps: true,
+    versionKey: false,
   },
 );
 export type ReportSettingDocument = InferSchemaType<typeof reportSettingSchema>;

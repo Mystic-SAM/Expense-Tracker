@@ -1,0 +1,47 @@
+import { z } from "zod";
+import { PaymentMethodEnum, RecurringIntervalEnum, TransactionTypeEnum } from "../enums/model-enums.js";
+
+export const baseTransactionSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  type: z.enum(
+    [
+      TransactionTypeEnum.INCOME,
+      TransactionTypeEnum.EXPENSE,
+      TransactionTypeEnum.INVESTMENT,
+    ],
+    {
+      message: "Transaction type must be INCOME or EXPENSE or INVESTMENT",
+    }
+  ),
+  amount: z.number().positive("Amount must be postive").min(1),
+  category: z.string().min(1, "Category is required"),
+  date: z
+    .union([z.iso.datetime({ message: "Invalid date string" }), z.date()])
+    .transform((val) => new Date(val)),
+  isRecurring: z.boolean().default(false),
+  recurringInterval: z
+    .enum([
+      RecurringIntervalEnum.DAILY,
+      RecurringIntervalEnum.WEEKLY,
+      RecurringIntervalEnum.MONTHLY,
+      RecurringIntervalEnum.YEARLY,
+    ])
+    .nullable()
+    .optional(),
+  paymentMethod: z
+    .enum([
+      PaymentMethodEnum.CARD,
+      PaymentMethodEnum.BANK_TRANSFER,
+      PaymentMethodEnum.UPI,
+      PaymentMethodEnum.CASH,
+      PaymentMethodEnum.OTHER,
+    ])
+    .default(PaymentMethodEnum.UPI),
+});
+
+export const createTransactionSchema = baseTransactionSchema;
+export const updateTransactionSchema = baseTransactionSchema.partial();
+
+export type CreateTransactionType = z.infer<typeof createTransactionSchema>;
+export type UpdateTransactionType = z.infer<typeof updateTransactionSchema>;
