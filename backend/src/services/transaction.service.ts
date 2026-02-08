@@ -115,7 +115,14 @@ export const getTransactionByIdService = async (
     _id: transactionId,
     userId,
   });
-  if (!transaction) throw new NotFoundException("Transaction not found");
+  if (!transaction) {
+    const errMsg = "Transaction not found";
+    Logger.error(errMsg, {
+      transactionId,
+      userId,
+    });
+    throw new NotFoundException(errMsg);
+  }
 
   return transaction;
 };
@@ -128,7 +135,14 @@ export const duplicateTransactionService = async (
     _id: transactionId,
     userId,
   });
-  if (!transaction) throw new NotFoundException("Transaction not found");
+  if (!transaction) {
+    const errMsg = "Transaction not found for duplication";
+    Logger.error(errMsg, {
+      transactionId,
+      userId,
+    });
+    throw new NotFoundException(errMsg);
+  }
 
   const {
     _id,
@@ -164,8 +178,14 @@ export const updateTransactionService = async (
     _id: transactionId,
     userId,
   });
-  if (!existingTransaction)
-    throw new NotFoundException("Transaction not found");
+  if (!existingTransaction) {
+    const errMsg = "Transaction not found for update";
+    Logger.error(errMsg, {
+      transactionId,
+      userId,
+    });
+    throw new NotFoundException(errMsg);
+  }
 
   const isRecurring = body.isRecurring ?? existingTransaction.isRecurring;
 
@@ -205,4 +225,57 @@ export const updateTransactionService = async (
   });
 
   return;
+};
+
+export const deleteTransactionService = async (
+  userId: string,
+  transactionId: string
+) => {
+  const deleted = await TransactionModel.findByIdAndDelete({
+    _id: transactionId,
+    userId,
+  });
+  if (!deleted) {
+    const errMsg = "Transaction not found for deletion";
+    Logger.error(errMsg, {
+      transactionId,
+      userId,
+    });
+    throw new NotFoundException(errMsg);
+  }
+
+  Logger.info("Transaction deleted successfully", {
+    transactionId,
+  });
+
+  return;
+};
+
+export const bulkDeleteTransactionService = async (
+  userId: string,
+  transactionIds: string[]
+) => {
+  const result = await TransactionModel.deleteMany({
+    _id: { $in: transactionIds },
+    userId,
+  });
+
+  if (result.deletedCount === 0) {
+    const errMsg = "No transations found for bulk deletion";
+    Logger.error(errMsg, {
+      transactionIds,
+      userId,
+    });
+    throw new NotFoundException(errMsg);
+  }
+
+  Logger.info("Bulk delete transactions executed", {
+    deletedCount: result.deletedCount,
+    totalRequested: transactionIds.length,
+  });
+
+  return {
+    success: true,
+    deletedCount: result.deletedCount,
+  };
 };

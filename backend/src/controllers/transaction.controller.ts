@@ -1,8 +1,8 @@
 import { HTTP_STATUS } from "../config/http.config.js";
 import { asyncHandler } from "../middlewares/asyncHandler.middleware.js";
 import type { Request, Response } from "express";
-import { createTransactionSchema, transactionIdSchema, updateTransactionSchema } from "../validators/transaction.validator.js";
-import { createTransactionService, duplicateTransactionService, getAllTransactionService, getTransactionByIdService, updateTransactionService } from "../services/transaction.service.js";
+import { bulkDeleteTransactionSchema, createTransactionSchema, transactionIdSchema, updateTransactionSchema } from "../validators/transaction.validator.js";
+import { bulkDeleteTransactionService, createTransactionService, deleteTransactionService, duplicateTransactionService, getAllTransactionService, getTransactionByIdService, updateTransactionService } from "../services/transaction.service.js";
 import { Logger } from "../utils/logger.js";
 import type { RecurringStatus, TransactionType } from "../enums/model-enums.js";
 
@@ -95,6 +95,40 @@ export const updateTransactionController = asyncHandler(
 
     return res.status(HTTP_STATUS.OK).json({
       message: "Transaction updated successfully",
+    });
+  }
+);
+
+export const deleteTransactionController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+    const transactionId = transactionIdSchema.parse(req.params.id);
+
+    await deleteTransactionService(userId, transactionId);
+
+    return res.status(HTTP_STATUS.OK).json({
+      message: "Transaction deleted successfully",
+    });
+  }
+);
+
+export const bulkDeleteTransactionController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+    const { transactionIds } = bulkDeleteTransactionSchema.parse(req.body);
+
+    const result = await bulkDeleteTransactionService(userId, transactionIds);
+
+    let message: string;
+    if (result.deletedCount < transactionIds.length) {
+      message = "Transactions deleted partially";
+    } else {
+      message = "All transactions deleted successfully";
+    }
+
+    return res.status(HTTP_STATUS.OK).json({
+      message,
+      ...result,
     });
   }
 );
