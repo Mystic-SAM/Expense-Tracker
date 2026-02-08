@@ -28,3 +28,18 @@ export function calculateNextOccurrence(
       return base;
   }
 }
+
+export function calculateNextEffectiveDate(
+  startDate: Date,
+  interval: RecurringInterval
+): Date {
+  const now = new Date();
+  const calculatedDate = calculateNextOccurrence(startDate, interval);
+
+  const nextRecurringDate =
+    calculatedDate < now
+      ? calculateNextOccurrence(now, interval)
+      : calculatedDate;
+
+  return nextRecurringDate;
+}

@@ -1,9 +1,13 @@
 import { HTTP_STATUS } from "../config/http.config.js";
 import { asyncHandler } from "../middlewares/asyncHandler.middleware.js";
 import type { Request, Response } from "express";
-import { createTransactionSchema } from "../validators/transaction.validator.js";
-import { createTransactionService } from "../services/transaction.service.js";
+import { createTransactionSchema, transactionIdSchema, updateTransactionSchema } from "../validators/transaction.validator.js";
+import { createTransactionService, duplicateTransactionService, getAllTransactionService, getTransactionByIdService, updateTransactionService } from "../services/transaction.service.js";
 import { Logger } from "../utils/logger.js";
+import type { RecurringStatus, TransactionType } from "../enums/model-enums.js";
+
+const DEFAULT_PAGE_SIZE = 20;
+const DEFAULT_PAGE_NUMBER = 1;
 
 export const createTransactionController = asyncHandler(
   async (req: Request, res: Response) => {
@@ -22,6 +26,75 @@ export const createTransactionController = asyncHandler(
     return res.status(HTTP_STATUS.CREATED).json({
       message: "Transaction created successfully",
       transaction,
+    });
+  }
+);
+
+export const getAllTransactionController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+
+    const filters = {
+      keyword: req.query.keyword as string | undefined,
+      type: req.query.type as TransactionType | undefined,
+      recurringStatus: req.query.recurringStatus as RecurringStatus | undefined,
+    };
+
+    const pagination = {
+      pageSize: parseInt(req.query.pageSize as string) || DEFAULT_PAGE_SIZE,
+      pageNumber: parseInt(req.query.pageNumber as string) || DEFAULT_PAGE_NUMBER,
+    };
+
+    const result = await getAllTransactionService(userId, filters, pagination);
+
+    return res.status(HTTP_STATUS.OK).json({
+      message: "Transaction fetched successfully",
+      ...result,
+    });
+  }
+);
+
+export const getTransactionByIdController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+    const transactionId = transactionIdSchema.parse(req.params.id);
+
+    const transaction = await getTransactionByIdService(userId, transactionId);
+
+    return res.status(HTTP_STATUS.OK).json({
+      message: "Transaction fetched successfully",
+      transaction,
+    });
+  }
+);
+
+export const duplicateTransactionController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+    const transactionId = transactionIdSchema.parse(req.params.id);
+
+    const transaction = await duplicateTransactionService(
+      userId,
+      transactionId
+    );
+
+    return res.status(HTTP_STATUS.OK).json({
+      message: "Transaction duplicated successfully",
+      data: transaction,
+    });
+  }
+);
+
+export const updateTransactionController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+    const transactionId = transactionIdSchema.parse(req.params.id);
+    const body = updateTransactionSchema.parse(req.body);
+
+    await updateTransactionService(userId, transactionId, body);
+
+    return res.status(HTTP_STATUS.OK).json({
+      message: "Transaction updated successfully",
     });
   }
 );

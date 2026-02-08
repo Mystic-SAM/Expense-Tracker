@@ -45,3 +45,9 @@ export enum ReportFrequencyEnum {
   MONTHLY = "MONTHLY",
 }
 export type ReportFrequency = keyof typeof ReportFrequencyEnum;
+
+export enum RecurringStatusEnum {
+  RECURRING = "RECURRING",
+  NON_RECURRING = "NON_RECURRING",
+}
+export type RecurringStatus = keyof typeof RecurringStatusEnum;
