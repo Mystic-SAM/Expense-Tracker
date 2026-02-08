@@ -1,4 +1,5 @@
 import "dotenv/config";
+import "./config/passport.config.js";
 import { Env } from "./config/env.config.js";
 import express from "express";
 import type { NextFunction, Request, Response } from "express";
@@ -12,6 +13,9 @@ import { Logger } from "./utils/logger.js";
 import { NotFoundException } from "./utils/app-error.js";
 import { connectDatabase } from "./config/database.config.js";
 import authRoutes from "./routes/auth.routes.js";
+import passport from "passport";
+import { passportAuthenticateJwt } from "./config/passport.config.js";
+import userRoutes from "./routes/user.routes.js";
 
 // Initialize logger (setup file logging and cleanup old logs)
 Logger.initialize();
@@ -28,6 +32,7 @@ app.use(requestLoggerMiddleware);
 // Body parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(passport.initialize());
 
 // CORS configuration
 app.use(
@@ -67,6 +72,7 @@ app.get(
 );
 
 app.use(`${BASE_PATH}/auth`, authRoutes);
+app.use(`${BASE_PATH}/user`, passportAuthenticateJwt, userRoutes);
 
 /**
  * 404 handler for undefined routes
