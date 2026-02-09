@@ -279,3 +279,39 @@ export const bulkDeleteTransactionService = async (
     deletedCount: result.deletedCount,
   };
 };
+
+export const bulkInsertTransactionService = async (
+  userId: string,
+  transactions: CreateTransactionType[]
+) => {
+  try {
+    const transactionDocs = transactions.map((tx) => ({
+      ...tx,
+      userId,
+      isRecurring: false,
+      nextRecurringDate: null,
+      recurringInterval: null,
+      lastProcessed: null,
+    }));
+
+    const result = await TransactionModel.insertMany(transactionDocs, {
+      ordered: true,
+    });
+
+    Logger.info("Bulk transactions inserted successfully", {
+      insertedCount: result.length,
+      userId,
+    });
+
+    return {
+      insertedCount: result.length,
+      success: true,
+    };
+  } catch (error) {
+    Logger.error("Error during bulk transaction insertion", {
+      error,
+      userId,
+    });
+    throw error;
+  }
+};
