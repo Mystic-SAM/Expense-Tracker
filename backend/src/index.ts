@@ -17,6 +17,7 @@ import passport from "passport";
 import { passportAuthenticateJwt } from "./config/passport.config.js";
 import userRoutes from "./routes/user.routes.js";
 import transactionRoutes from "./routes/transaction.routes.js";
+import { initializeCrons } from "./crons/index.js";
 
 // Initialize logger (setup file logging and cleanup old logs)
 Logger.initialize();
@@ -110,6 +111,10 @@ const gracefulShutdown = (server: ReturnType<typeof app.listen>, signal: string)
 
 const startServer = async () => {
   await connectDatabase();
+
+  if (Env.NODE_ENV === "development") {
+    await initializeCrons();
+  }
 
   const server = app.listen(Env.PORT, () => {
     console.log(`Server is running on port ${Env.PORT} in ${Env.NODE_ENV} mode.`);
