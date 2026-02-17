@@ -32,7 +32,7 @@ export class Logger {
   }
 
   /**
-   * Format log data as a neatly formatted JSON string
+   * Format log data
    */
   private static formatLogData(
     level: string,
@@ -40,33 +40,52 @@ export class Logger {
     metadata?: Record<string, any>,
   ): string {
     const timestamp = new Date().toISOString();
-    const logObject = {
-      timestamp,
-      level,
-      message,
-      ...(this.currentRequestId && { requestId: this.currentRequestId }),
-      ...(metadata && { metadata }),
-    };
-    return JSON.stringify(logObject, null, 2);
+    const requestIdStr = this.currentRequestId
+      ? ` [${this.currentRequestId}]`
+      : "";
+
+    let logOutput = "-".repeat(80) + `\n[${timestamp}] ${level}${requestIdStr}: ${message}`;
+
+    // Append metadata if present
+    if (metadata && Object.keys(metadata).length > 0) {
+      logOutput += "\n" + JSON.stringify(metadata, null, 2);
+    }
+
+    return logOutput;
   }
 
   /**
-   * Print formatted error to console
+   * Format error log with readable stack trace
    */
-  private static printErrorToConsole(
-    level: string,
+  private static formatErrorLog(
     message: string,
-    error?: string | undefined,
-  ): void {
+    errorMessage?: string,
+    stack?: string,
+    metadata?: Record<string, any>,
+  ): string {
     const timestamp = new Date().toISOString();
     const requestIdStr = this.currentRequestId
       ? ` [${this.currentRequestId}]`
       : "";
-    const errorStr = error ? `\n  Error: ${error}` : "";
 
-    console.error(
-      `\n[${timestamp}] ${level}${requestIdStr}: ${message}${errorStr}`,
-    );
+    let logOutput = "-".repeat(80) + `\n[${timestamp}] ERROR${requestIdStr}: ${message}`;
+
+    // Append error message if present
+    if (errorMessage) {
+      logOutput += `\n  Error: ${errorMessage}`;
+    }
+
+    // Append metadata if present
+    if (metadata && Object.keys(metadata).length > 0) {
+      logOutput += "\n" + JSON.stringify(metadata, null, 2);
+    }
+
+    // Append stack trace in readable format
+    if (stack) {
+      logOutput += "\nStack Trace:\n" + stack;
+    }
+
+    return logOutput;
   }
 
   /**
@@ -105,20 +124,20 @@ export class Logger {
         ? errorObj.stack
         : undefined;
 
-    const logObject = {
-      timestamp: new Date().toISOString(),
-      level: "ERROR",
-      message,
-      ...(this.currentRequestId && { requestId: this.currentRequestId }),
-      ...(errorMessage && { error: errorMessage }),
-      ...(stack && { stack }),
-      ...(metadata && { metadata }),
-    };
-
-    const logData = JSON.stringify(logObject, null, 2);
+    // Format the error log with readable stack trace
+    const logData = this.formatErrorLog(message, errorMessage, stack, metadata);
 
     // Print to console
-    this.printErrorToConsole("ERROR", message, errorMessage);
+    const requestIdStr = this.currentRequestId
+      ? ` [${this.currentRequestId}]`
+      : "";
+    const errorStr = errorMessage ? `\n  Error: ${errorMessage}` : "";
+    console.error(
+      `\n[${new Date().toISOString()}] ERROR${requestIdStr}: ${message}${errorStr}`,
+    );
+    if (stack) {
+      console.error("Stack Trace:\n" + stack);
+    }
 
     // Write to file
     FileLogger.writeToFile(logData);
