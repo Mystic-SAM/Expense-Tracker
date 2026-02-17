@@ -17,6 +17,7 @@ import {
 import { useRegisterMutation } from "@/features/auth/authAPI";
 import { toast } from "sonner";
 import GithubIcon from "@/assets/Icons/GithubIcon";
+import { cn } from "@/lib/utils";
 
 const schema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -26,7 +27,10 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-const SignUpForm = () => {
+const SignUpForm = ({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<"form">) => {
   const navigate = useNavigate();
   const [register, { isLoading }] = useRegisterMutation();
 
@@ -57,7 +61,8 @@ const SignUpForm = () => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex flex-col gap-6"
+        className={cn("flex flex-col gap-6", className)}
+        {...props}
       >
         <div className="flex flex-col items-center gap-2 text-center">
           <h1 className="text-2xl font-bold">Sign up to Spendlytics</h1>
@@ -114,7 +119,12 @@ const SignUpForm = () => {
               Or continue with
             </span>
           </div>
-          <Button type="button" variant="outline" className="w-full" onClick={() => toast.info("GitHub sign up not implemented yet!")}>
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            onClick={() => toast.info("GitHub sign up not implemented yet!")}
+          >
             <GithubIcon />
             Sign up with GitHub
           </Button>

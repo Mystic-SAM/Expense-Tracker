@@ -1,11 +1,18 @@
-import SignUpForm from "./SignUpForm"
-import Logo from "@/components/ui/Logo/Logo"
+import Logo from "@/components/ui/Logo/Logo";
 import dashboardImg from "../../assets/images/dashboard_.png";
 import dashboardImgDark from "../../assets/images/dashboard_dark.png";
+import SignInForm from "./components/SignInForm";
+import SignUpForm from "./components/SignUpForm";
 import { useTheme } from "@/context/ThemeProvider";
+import { AUTH_PAGE_TYPE, type AuthPageType } from "@/features/auth/authTypes";
 
-const SignUp = () => {
+interface AuthPageProps {
+  type: AuthPageType;
+}
+
+const AuthPage = ({ type }: AuthPageProps) => {
   const { theme } = useTheme();
+
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10 md:pt-6">
@@ -14,7 +21,7 @@ const SignUp = () => {
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">
-            <SignUpForm />
+            {type === AUTH_PAGE_TYPE.SIGN_IN ? <SignInForm /> : <SignUpForm />}
           </div>
         </div>
       </div>
@@ -25,7 +32,8 @@ const SignUp = () => {
               Hi, I'm your personal finance app, Spendlytics!
             </h1>
             <p className="mt-4 text-gray-600 dark:text-muted-foreground">
-              Spendlytics provides insights, monthly reports, CSV import, recurring transaction. 🚀
+              Spendlytics provides insights, monthly reports, CSV import,
+              recurring transaction. 🚀
             </p>
           </div>
           <div className="relative max-w-3xl h-full w-full overflow-hidden mt-3">
@@ -42,7 +50,7 @@ const SignUp = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SignUp;
+export default AuthPage;
