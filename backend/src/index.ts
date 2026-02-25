@@ -18,6 +18,7 @@ import { passportAuthenticateJwt } from "./config/passport.config.js";
 import userRoutes from "./routes/user.routes.js";
 import transactionRoutes from "./routes/transaction.routes.js";
 import { initializeCrons } from "./crons/index.js";
+import reportRoutes from "./routes/report.routes.js";
 
 // Initialize logger (setup file logging and cleanup old logs)
 Logger.initialize();
@@ -76,6 +77,7 @@ app.get(
 app.use(`${BASE_PATH}/auth`, authRoutes);
 app.use(`${BASE_PATH}/user`, passportAuthenticateJwt, userRoutes);
 app.use(`${BASE_PATH}/transaction`, passportAuthenticateJwt, transactionRoutes);
+app.use(`${BASE_PATH}/report`, passportAuthenticateJwt, reportRoutes);
 
 /**
  * 404 handler for undefined routes
@@ -87,7 +89,10 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use(ErrorHandler);
 
 // Server Startup & Graceful Shutdown
-const gracefulShutdown = (server: ReturnType<typeof app.listen>, signal: string) => {
+const gracefulShutdown = (
+  server: ReturnType<typeof app.listen>,
+  signal: string,
+) => {
   Logger.info(`${signal} signal received: closing HTTP server`, {
     signal,
     timestamp: new Date().toISOString(),

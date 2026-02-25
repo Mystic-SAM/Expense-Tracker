@@ -11,6 +11,8 @@ const _Env = {
   MONGO_URI: getEnv("MONGO_URI"),
   FRONTEND_ORIGIN: getEnv("FRONTEND_ORIGIN", "localhost"),
 
+  GEMINI_API_KEY: getEnv("GEMINI_API_KEY"),
+
   JWT_SECRET: getEnv("JWT_SECRET"),
   JWT_EXPIRES_IN: getEnv("JWT_EXPIRES_IN", "1h"),
 } as const;
