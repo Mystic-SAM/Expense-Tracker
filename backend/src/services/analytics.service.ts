@@ -300,6 +300,272 @@ export const summaryAnalyticsService = async (
   };
 };
 
+export const chartAnalyticsService = async (
+  userId: string,
+  dateRangePreset?: DateRangePreset,
+  customFrom?: Date,
+  customTo?: Date,
+) => {
+  const range = getDateRange(dateRangePreset, customFrom, customTo);
+  const { from, to, value: rangeValue } = range;
+
+  const filter: any = {
+    userId: new mongoose.Types.ObjectId(userId),
+    ...(from &&
+      to && {
+        date: {
+          $gte: from,
+          $lte: to,
+        },
+      }),
+  };
+
+  const result = await TransactionModel.aggregate([
+    { $match: filter },
+    //Group the transaction by date (YYYY-MM-DD)
+    {
+      $group: {
+        _id: {
+          $dateToString: {
+            format: "%Y-%m-%d",
+            date: "$date",
+          },
+        },
+
+        income: {
+          $sum: {
+            $cond: [
+              { $eq: ["$type", TransactionTypeEnum.INCOME] },
+              { $abs: "$amount" },
+              0,
+            ],
+          },
+        },
+
+        expenses: {
+          $sum: {
+            $cond: [
+              { $eq: ["$type", TransactionTypeEnum.EXPENSE] },
+              { $abs: "$amount" },
+              0,
+            ],
+          },
+        },
+
+        investment: {
+          $sum: {
+            $cond: [
+              { $eq: ["$type", TransactionTypeEnum.INVESTMENT] },
+              { $abs: "$amount" },
+              0,
+            ],
+          },
+        },
+
+        incomeCount: {
+          $sum: {
+            $cond: [{ $eq: ["$type", TransactionTypeEnum.INCOME] }, 1, 0],
+          },
+        },
+
+        expenseCount: {
+          $sum: {
+            $cond: [{ $eq: ["$type", TransactionTypeEnum.EXPENSE] }, 1, 0],
+          },
+        },
+
+        investmentCount: {
+          $sum: {
+            $cond: [{ $eq: ["$type", TransactionTypeEnum.INVESTMENT] }, 1, 0],
+          },
+        },
+      },
+    },
+
+    { $sort: { _id: 1 } },
+
+    {
+      $project: {
+        _id: 0,
+        date: "$_id",
+        income: 1,
+        expenses: 1,
+        investment: 1,
+        incomeCount: 1,
+        expenseCount: 1,
+        investmentCount: 1,
+      },
+    },
+
+    {
+      $group: {
+        _id: null,
+        chartData: { $push: "$$ROOT" },
+        totalIncomeCount: { $sum: "$incomeCount" },
+        totalExpenseCount: { $sum: "$expenseCount" },
+        totalInvestmentCount: { $sum: "$investmentCount" },
+      },
+    },
+
+    {
+      $project: {
+        _id: 0,
+        chartData: 1,
+        totalIncomeCount: 1,
+        totalExpenseCount: 1,
+        totalInvestmentCount: 1,
+      },
+    },
+  ]);
+
+  const resultData = result[0] || {};
+
+  const transaformedData = (resultData?.chartData || []).map((item: any) => ({
+    date: item.date,
+    income: convertToINR(item.income),
+    expenses: convertToINR(item.expenses),
+    investment: convertToINR(item.investment),
+  }));
+
+  return {
+    chartData: transaformedData,
+    totalIncomeCount: resultData.totalIncomeCount,
+    totalExpenseCount: resultData.totalExpenseCount,
+    totalInvestmentCount: resultData.totalInvestmentCount,
+    preset: {
+      ...range,
+      value: rangeValue || DateRangeEnum.ALL_TIME,
+      label: range?.label || "All Time",
+    },
+  };
+};
+
+export const expensePieChartBreakdownService = async (
+  userId: string,
+  dateRangePreset?: DateRangePreset,
+  customFrom?: Date,
+  customTo?: Date,
+) => {
+  const range = getDateRange(dateRangePreset, customFrom, customTo);
+  const { from, to, value: rangeValue } = range;
+
+  const filter: any = {
+    userId: new mongoose.Types.ObjectId(userId),
+    type: TransactionTypeEnum.EXPENSE,
+    ...(from &&
+      to && {
+        date: {
+          $gte: from,
+          $lte: to,
+        },
+      }),
+  };
+
+  const pipleline: PipelineStage[] = [
+    {
+      $match: filter,
+    },
+    {
+      $group: {
+        _id: "$category",
+        value: { $sum: { $abs: "$amount" } },
+      },
+    },
+    { $sort: { value: -1 } }, //
+
+    {
+      $facet: {
+        topThree: [{ $limit: 3 }],
+        others: [
+          { $skip: 3 },
+          {
+            $group: {
+              _id: "others",
+              value: { $sum: "$value" },
+            },
+          },
+        ],
+      },
+    },
+
+    {
+      $project: {
+        categories: {
+          $concatArrays: ["$topThree", "$others"],
+        },
+      },
+    },
+
+    { $unwind: "$categories" },
+
+    {
+      $group: {
+        _id: null,
+        totalSpent: { $sum: "$categories.value" },
+        breakdown: { $push: "$categories" },
+      },
+    },
+
+    {
+      $project: {
+        _id: 0,
+        totalSpent: 1,
+        breakdown: {
+          // .map((cat: any)=> )
+          $map: {
+            input: "$breakdown",
+            as: "cat",
+            in: {
+              name: "$$cat._id",
+              value: "$$cat.value",
+              percentage: {
+                $cond: [
+                  { $eq: ["$totalSpent", 0] },
+                  0,
+                  {
+                    $round: [
+                      {
+                        $multiply: [
+                          { $divide: ["$$cat.value", "$totalSpent"] },
+                          100,
+                        ],
+                      },
+                      0,
+                    ],
+                  },
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
+  ];
+
+  const result = await TransactionModel.aggregate(pipleline);
+
+  const data = result[0] || {
+    totalSpent: 0,
+    breakdown: [],
+  };
+  const transformedData = {
+    totalSpent: convertToINR(data.totalSpent),
+    breakdown: data.breakdown.map((item: any) => ({
+      ...item,
+      value: convertToINR(item.value),
+    })),
+  };
+
+  return {
+    ...transformedData,
+    preset: {
+      ...range,
+      value: rangeValue || DateRangeEnum.ALL_TIME,
+      label: range?.label || "All Time",
+    },
+  };
+};
+
 function calaulatePercentageChange(previous: number, current: number) {
   if (previous === 0) return current === 0 ? 0 : 100;
   const changes = ((current - previous) / Math.abs(previous)) * 100;

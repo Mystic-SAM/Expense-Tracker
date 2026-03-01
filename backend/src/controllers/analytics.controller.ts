@@ -32,3 +32,52 @@ export const summaryAnalyticsController = asyncHandler(
     });
   },
 );
+
+export const chartAnalyticsController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+    const { preset, from, to } = req.query;
+
+    const filter = {
+      dateRangePreset: preset as DateRangePreset,
+      customFrom: from ? new Date(from as string) : undefined,
+      customTo: to ? new Date(to as string) : undefined,
+    };
+
+    const chartData = await chartAnalyticsService(
+      userId,
+      filter.dateRangePreset,
+      filter.customFrom,
+      filter.customTo,
+    );
+
+    return res.status(HTTP_STATUS.OK).json({
+      message: "Chart fetched successfully",
+      data: chartData,
+    });
+  },
+);
+
+export const expensePieChartBreakdownController = asyncHandler(
+  async (req: Request, res: Response) => {
+    const userId = req.user?._id;
+    const { preset, from, to } = req.query;
+
+    const filter = {
+      dateRangePreset: preset as DateRangePreset,
+      customFrom: from ? new Date(from as string) : undefined,
+      customTo: to ? new Date(to as string) : undefined,
+    };
+    const pieChartData = await expensePieChartBreakdownService(
+      userId,
+      filter.dateRangePreset,
+      filter.customFrom,
+      filter.customTo,
+    );
+
+    return res.status(HTTP_STATUS.OK).json({
+      message: "Expense breakdown fetched successfully",
+      data: pieChartData,
+    });
+  },
+);
