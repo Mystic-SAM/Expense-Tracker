@@ -19,6 +19,7 @@ import userRoutes from "./routes/user.routes.js";
 import transactionRoutes from "./routes/transaction.routes.js";
 import { initializeCrons } from "./crons/index.js";
 import reportRoutes from "./routes/report.routes.js";
+import analyticsRoutes from "./routes/analytics.routes.js";
 
 // Initialize logger (setup file logging and cleanup old logs)
 Logger.initialize();
@@ -78,6 +79,7 @@ app.use(`${BASE_PATH}/auth`, authRoutes);
 app.use(`${BASE_PATH}/user`, passportAuthenticateJwt, userRoutes);
 app.use(`${BASE_PATH}/transaction`, passportAuthenticateJwt, transactionRoutes);
 app.use(`${BASE_PATH}/report`, passportAuthenticateJwt, reportRoutes);
+app.use(`${BASE_PATH}/analytics`, passportAuthenticateJwt, analyticsRoutes);
 
 /**
  * 404 handler for undefined routes
@@ -122,7 +124,9 @@ const startServer = async () => {
   }
 
   const server = app.listen(Env.PORT, () => {
-    console.log(`Server is running on port ${Env.PORT} in ${Env.NODE_ENV} mode.`);
+    console.log(
+      `Server is running on port ${Env.PORT} in ${Env.NODE_ENV} mode.`,
+    );
     Logger.info(`Server started successfully`, {
       port: Env.PORT,
       environment: Env.NODE_ENV,
