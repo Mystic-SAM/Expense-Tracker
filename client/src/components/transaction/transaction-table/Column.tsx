@@ -24,6 +24,7 @@ import { formatCurrency } from "@/lib/formatCurrency";
 import { PAYMENT_METHODS, TRANSACTION_CATEGORY, TRANSACTION_FREQUENCY } from "@/constants/constants";
 import type { TransactionType } from "@/features/transaction/transactionTypes";
 import { cn } from "@/lib/utils";
+import useEditTransactionDrawer from "@/hooks/useEditTransactionDrawer";
 
 type FrequencyInfo = {
   label: string;
@@ -229,6 +230,8 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
 ];
 
 const ActionsCell = ({ row }: { row: any }) => {
+  const transactionId = row.original.id;
+  const { onOpenDrawer } = useEditTransactionDrawer();
 
   const isDeleting = true
   const isDuplicating = false
@@ -258,7 +261,7 @@ const ActionsCell = ({ row }: { row: any }) => {
           }
         }}
       >
-        <DropdownMenuItem onClick={() => console.log("Drawer Open")}>
+        <DropdownMenuItem onClick={() => onOpenDrawer(transactionId)}>
           <Pencil className="mr-1 h-4 w-4" />
           Edit
         </DropdownMenuItem>

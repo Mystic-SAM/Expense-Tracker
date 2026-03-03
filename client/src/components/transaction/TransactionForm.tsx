@@ -40,10 +40,15 @@ import { Switch } from "../ui/switch";
 import CurrencyInputField from "../ui/currency-input";
 import { SingleSelector } from "../ui/single-select";
 import { toast } from "sonner";
-import { useCreateTransactionMutation } from "@/features/transaction/transactionAPI";
+import {
+  useCreateTransactionMutation,
+  useGetSingleTransactionQuery,
+  useUpdateTransactionMutation,
+} from "@/features/transaction/transactionAPI";
 import { transactionFormSchema } from "@/validators/transactionValidators";
 import { format } from "date-fns";
 import { enIN } from "date-fns/locale";
+import { useEffect } from "react";
 
 type FormValues = z.infer<typeof transactionFormSchema>;
 
@@ -52,10 +57,17 @@ const TransactionForm = (props: {
   transactionId?: string;
   onCloseDrawer?: () => void;
 }) => {
-  const { onCloseDrawer, isEdit = false } = props;
+  const { onCloseDrawer, isEdit = false, transactionId } = props;
 
-  const [createTransaction, { isLoading: isCreating }] =
-    useCreateTransactionMutation();
+  const { data, isLoading } = useGetSingleTransactionQuery(
+    transactionId || "",
+    { skip: !transactionId },
+  );
+  const editData = data?.transaction;
+
+  const [createTransaction, { isLoading: isCreating }] = useCreateTransactionMutation();
+
+  const [updateTransaction, { isLoading: isUpdating }] = useUpdateTransactionMutation();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(transactionFormSchema),
@@ -72,10 +84,25 @@ const TransactionForm = (props: {
     },
   });
 
+  useEffect(() => {
+    if (isEdit && transactionId && editData) {
+      form.reset({
+        title: editData.title,
+        amount: editData.amount.toString(),
+        type: editData.type,
+        category: editData.category,
+        date: new Date(editData.date),
+        paymentMethod: editData.paymentMethod,
+        isRecurring: editData.isRecurring,
+        frequency: editData.recurringInterval,
+        description: editData.description,
+      });
+    }
+  }, [editData, form, isEdit, transactionId]);
+
   // Handle form submission
   const onSubmit = (values: FormValues) => {
-    if (isCreating) return;
-    console.log("Form submitted:", values);
+    if (isCreating || isUpdating) return;
     const payload = {
       title: values.title,
       type: values.type,
@@ -105,11 +132,18 @@ const TransactionForm = (props: {
       toast.error(error?.data?.message || error?.message || defaultErrMessage);
     };
 
+    if (isEdit && transactionId) {
+      updateTransaction({ id: transactionId, transaction: payload })
+        .unwrap()
+        .then(handleSuccess)
+        .catch(handleError);
+      return;
+    }
     createTransaction(payload).unwrap().then(handleSuccess).catch(handleError);
   };
 
   return (
-    <div className="relative pb-10 pt-5 px-2.5">
+    <div className="relative pt-5 px-2.5">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 px-4">
           <div className="space-y-6">
@@ -183,9 +217,7 @@ const TransactionForm = (props: {
               render={({ field }) => {
                 const getCategoryOption = () => {
                   if (!field.value) return undefined;
-                  const found = CATEGORIES.find(
-                    (opt) => opt.value === field.value,
-                  );
+                  const found = CATEGORIES.find(opt => opt.value === field.value);
                   return found || { value: field.value, label: field.value };
                 };
 
@@ -370,12 +402,20 @@ const TransactionForm = (props: {
             <Button
               type="submit"
               className="w-full !text-white"
-              disabled={isCreating}
+              disabled={isCreating || isUpdating}
             >
-              {isCreating ? <Loader className="h-4 w-4 animate-spin" /> : null}
+              {(isCreating || isUpdating) && (
+                <Loader className="h-4 w-4 animate-spin" />
+              )}
               {isEdit ? "Update" : "Save"}
             </Button>
           </div>
+
+          {isLoading && (
+            <div className="absolute top-0 left-0 right-0 bottom-0 bg-white/70 dark:bg-background/70 z-50 flex justify-center">
+              <Loader className="h-8 w-8 animate-spin" />
+            </div>
+          )}
         </form>
       </Form>
     </div>

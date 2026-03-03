@@ -57,3 +57,13 @@ export interface GetAllTransactionResponse {
     skip: number;
   };
 }
+
+export interface GetSingleTransactionResponse {
+  message: string;
+  transaction: TransactionType;
+}
+
+export interface UpdateTransactionPayload {
+  id: string;
+  transaction: CreateTransactionBody;
+}

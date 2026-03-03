@@ -1,5 +1,11 @@
 import { apiClient } from "@/app/apiClient";
-import type { CreateTransactionBody, GetAllTransactionParams, GetAllTransactionResponse } from "./transactionTypes";
+import type {
+  CreateTransactionBody,
+  GetAllTransactionParams,
+  GetAllTransactionResponse,
+  GetSingleTransactionResponse,
+  UpdateTransactionPayload
+} from "./transactionTypes";
 
 export const transactionApi = apiClient.injectEndpoints({
   endpoints: (builder) => ({
@@ -30,7 +36,29 @@ export const transactionApi = apiClient.injectEndpoints({
       },
       providesTags: ["transactions"],
     }),
+
+    getSingleTransaction: builder.query<GetSingleTransactionResponse, string>({
+      query: (id) => ({
+        url: `/transaction/${id}`,
+        method: "GET",
+      }),
+    }),
+
+    updateTransaction: builder.mutation<void, UpdateTransactionPayload>({
+      query: ({ id, transaction }) => ({
+        url: `/transaction/update/${id}`,
+        method: "PUT",
+        body: transaction,
+      }),
+      invalidatesTags: ["transactions"],
+    }),
+
   }),
 });
 
-export const { useCreateTransactionMutation, useGetAllTransactionsQuery } = transactionApi;
+export const {
+  useCreateTransactionMutation,
+  useGetAllTransactionsQuery,
+  useGetSingleTransactionQuery,
+  useUpdateTransactionMutation,
+} = transactionApi;
