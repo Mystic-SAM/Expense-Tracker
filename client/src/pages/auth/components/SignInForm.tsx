@@ -21,13 +21,14 @@ import { setCredentials } from "@/features/auth/authSlice";
 import { toast } from "sonner";
 import GithubIcon from "@/assets/Icons/GithubIcon";
 import { signInSchema } from "@/validators/authValidators";
+import type { ComponentPropsWithoutRef } from "react";
 
 type FormValues = z.infer<typeof signInSchema>;
 
 const SignInForm = ({
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"form">) => {
+}: ComponentPropsWithoutRef<"form">) => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [login, { isLoading }] = useLoginMutation();

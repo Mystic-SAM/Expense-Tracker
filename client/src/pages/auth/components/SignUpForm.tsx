@@ -19,13 +19,14 @@ import { toast } from "sonner";
 import GithubIcon from "@/assets/Icons/GithubIcon";
 import { cn } from "@/lib/utils";
 import { signUpSchema } from "@/validators/authValidators";
+import type { ComponentPropsWithoutRef } from "react";
 
 type FormValues = z.infer<typeof signUpSchema>;
 
 const SignUpForm = ({
   className,
   ...props
-}: React.ComponentPropsWithoutRef<"form">) => {
+}: ComponentPropsWithoutRef<"form">) => {
   const navigate = useNavigate();
   const [register, { isLoading }] = useRegisterMutation();
 
