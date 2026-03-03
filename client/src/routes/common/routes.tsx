@@ -3,6 +3,7 @@ import { AUTH_ROUTES, PROTECTED_ROUTES } from "./routePath";
 import AuthPage from "@/pages/auth/AuthPage";
 import Dashboard from "@/pages/dashboard/DashboardPage";
 import Transactions from "@/pages/transactions/transaction";
+import ReportsPage from "@/pages/reports/ReportsPage";
 
 export const authenticationRoutePaths = [
   {
@@ -18,4 +19,5 @@ export const authenticationRoutePaths = [
 export const protectedRoutePaths = [
   { path: PROTECTED_ROUTES.DASHBOARD, element: <Dashboard /> },
   { path: PROTECTED_ROUTES.TRANSACTIONS, element: <Transactions /> },
+  { path: PROTECTED_ROUTES.REPORTS, element: <ReportsPage /> },
 ];
