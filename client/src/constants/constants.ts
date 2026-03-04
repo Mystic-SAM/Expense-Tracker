@@ -79,3 +79,13 @@ export const RECURRING_STATUS = {
 } as const;
 
 export type RecurringStatusType = keyof typeof RECURRING_STATUS;
+
+export const REPORT_STATUS = {
+  SENT: "SENT",
+  FAILED: "FAILED",
+  PENDING: "PENDING",
+  PROCESSING: "PROCESSING",
+  NO_ACTIVITY: "NO_ACTIVITY",
+} as const;
+
+export type ReportStatusType = keyof typeof REPORT_STATUS;

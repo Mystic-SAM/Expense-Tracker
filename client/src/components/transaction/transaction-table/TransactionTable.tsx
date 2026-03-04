@@ -3,7 +3,7 @@ import { TRANSACTION_CATEGORY, type RecurringStatusType, type TransactionCategor
 import { useBulkDeleteTransactionMutation, useGetAllTransactionsQuery } from "@/features/transaction/transactionAPI";
 import useDebouncedSearch from "@/hooks/useDebounceSearch";
 import { useState } from "react";
-import { transactionColumns } from "./Column";
+import { transactionColumns } from "./transactionColumns";
 import { toast } from "sonner";
 
 type FilterType = {
@@ -72,8 +72,6 @@ const TransactionTable = (props: {
   };
 
   const handleBulkDelete = (transactionIds: string[]) => {
-    console.log(transactionIds);
-
     bulkDeleteTransaction(transactionIds)
       .unwrap()
       .then(() => {

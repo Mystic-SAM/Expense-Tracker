@@ -45,7 +45,8 @@ interface DataTableProps<TData> {
   searchPlaceholder?: string;
   showSearch?: boolean;
   filters?: FilterOption[];
-  className?: string;
+  tableWrapperClassName?: string;
+  cellClassName?: string;
   onSearch?: (term: string) => void;
   onFilterChange?: (filters: Record<string, string>) => void;
   onBulkDelete?: (selectedIds: string[]) => void;
@@ -70,7 +71,8 @@ export function DataTable<TData>(props: DataTableProps<TData>) {
     searchPlaceholder = "Search...",
     showSearch = true,
     filters = [],
-    className,
+    tableWrapperClassName,
+    cellClassName,
     onSearch,
     onFilterChange,
     onBulkDelete,
@@ -207,7 +209,7 @@ export function DataTable<TData>(props: DataTableProps<TData>) {
       </div>
 
       {/* Table */}
-      <div className={cn("rounded-md border overflow-x-auto", className)}>
+      <div className={cn("rounded-md border overflow-x-auto", tableWrapperClassName)}>
         {isLoading ? (
           <TableSkeleton columns={6} rows={20} />
         ) : (
@@ -241,7 +243,7 @@ export function DataTable<TData>(props: DataTableProps<TData>) {
                     data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell: any) => (
-                      <TableCell key={cell.id} className="text-[14px] max-w-[200px]">
+                      <TableCell key={cell.id} className={cn("text-[14px]", cellClassName)}>
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()

@@ -75,27 +75,7 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
   {
     accessorKey: "title",
     header: "Title",
-  },
-  {
-    accessorKey: "category",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        className="!pl-0"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Category
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const category = row.original.category;
-      return (
-        <div className="capitalize">
-          {category}
-        </div>
-      );
-    },
+    cell: ({ row }) => (<div className="w-[100px] sm480:w-[150px] sm:w-[200px]">{row.getValue("title")}</div>),
   },
   {
     accessorKey: "type",
@@ -141,7 +121,7 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
 
       return (
         <div
-          className={cn("text-right font-medium", {
+          className={cn("text-right font-medium whitespace-nowrap", {
             "text-green-600": type === TRANSACTION_CATEGORY.INCOME,
             "text-destructive": type === TRANSACTION_CATEGORY.EXPENSE,
             "text-blue-800": type === TRANSACTION_CATEGORY.INVESTMENT,
@@ -166,6 +146,27 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
       </Button>
     ),
     cell: ({ row }) => <div className="text-center">{format(row.original.date, "MMM dd, yyyy")}</div>,
+  },
+  {
+    accessorKey: "category",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        className="!pl-0"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Category
+        <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => {
+      const category = row.original.category;
+      return (
+        <div className="capitalize">
+          {category}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "paymentMethod",
