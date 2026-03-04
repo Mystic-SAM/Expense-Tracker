@@ -49,7 +49,7 @@ const UserNav = ({ userName, profilePicture, onLogout }: {
       forceMount
     >
       <DropdownMenuLabel className="flex flex-col items-start gap-1">
-        <span className="font-semibold">{userName}</span>
+        <span className="font-semibold truncate w-full">{userName}</span>
       </DropdownMenuLabel>
       <DropdownMenuSeparator className="!bg-gray-700" />
       <DropdownMenuGroup>

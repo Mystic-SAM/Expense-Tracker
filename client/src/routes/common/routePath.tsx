@@ -11,4 +11,6 @@ export const PROTECTED_ROUTES = {
   DASHBOARD: "/dashboard",
   TRANSACTIONS: "/transactions",
   REPORTS: "/reports",
+  SETTINGS: "/settings",
+  SETTINGS_APPEARANCE: "/settings/appearance",
 };

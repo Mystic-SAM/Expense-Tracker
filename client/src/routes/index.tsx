@@ -6,6 +6,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import AppLayout from "@/layouts/AppLayout";
 
 const AppRoutes = () => {
+  // useAuthExpiration();
   return (
     <BrowserRouter>
       <Routes>
@@ -29,7 +30,16 @@ const AppRoutes = () => {
                 key={route.path}
                 path={route.path}
                 element={route.element}
-              />
+              >
+                {route.children?.map((childRoute, idx) => (
+                  <Route
+                    key={'path' in childRoute ? (childRoute.path as string) : `index-${idx}`}
+                    index={childRoute.index}
+                    path={'path' in childRoute ? (childRoute.path as string) : undefined}
+                    element={childRoute.element}
+                  />
+                ))}
+              </Route>
             ))}
           </Route>
         </Route>

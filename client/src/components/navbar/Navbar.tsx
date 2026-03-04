@@ -30,10 +30,10 @@ const Navbar = () => {
       href: PROTECTED_ROUTES.REPORTS,
       label: "Reports",
     },
-    // {
-    //   href: PROTECTED_ROUTES.SETTINGS,
-    //   label: "Settings",
-    // },
+    {
+      href: PROTECTED_ROUTES.SETTINGS,
+      label: "Settings",
+    },
   ];
 
   return (
