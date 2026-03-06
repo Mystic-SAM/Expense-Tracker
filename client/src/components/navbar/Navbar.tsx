@@ -20,7 +20,7 @@ const Navbar = () => {
   const routes = [
     {
       href: PROTECTED_ROUTES.DASHBOARD,
-      label: "Overview",
+      label: "Dashboard",
     },
     {
       href: PROTECTED_ROUTES.TRANSACTIONS,
@@ -65,6 +65,7 @@ const Navbar = () => {
             <nav className="hidden md:flex items-center gap-x-2">
               {routes?.map((route) => (
                 <Button
+                  key={route.href}
                   size="sm"
                   variant="ghost"
                   className={cn(
@@ -77,7 +78,7 @@ const Navbar = () => {
                   )}
                   asChild
                 >
-                  <NavLink key={route.href} to={route.href}>
+                  <NavLink to={route.href}>
                     {route.label}
                   </NavLink>
                 </Button>
