@@ -129,7 +129,7 @@ const presets: DateRangePreset[] = [
 export const DateRangeSelect = ({
   dateRange,
   setDateRange,
-  defaultRange = DateRangeEnum.LAST_30_DAYS,
+  defaultRange = DateRangeEnum.THIS_MONTH,
 }: DateRangeSelectProps) => {
   const [open, setOpen] = useState(false);
 

@@ -180,7 +180,7 @@ const ScheduleReportForm = ({ onCloseDrawer }: { onCloseDrawer: () => void }) =>
             <div className="sticky bottom-0 py-2 z-50">
               <Button
                 type="submit"
-                disabled={isLoading}
+                disabled={isLoading || reportSetting?.isEnabled === form.watch("isEnabled")}
                 className="w-full text-white"
               >
                 {isLoading && <Loader className="h-4 w-4 animate-spin" />}
