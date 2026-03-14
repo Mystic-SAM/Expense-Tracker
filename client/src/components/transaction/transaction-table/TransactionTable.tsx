@@ -103,7 +103,7 @@ const TransactionTable = (props: {
         },
         {
           key: "frequency",
-          label: "Frequency",
+          label: "All Frequencies",
           options: [
             { value: "RECURRING", label: "Recurring" },
             { value: "NON_RECURRING", label: "Non-Recurring" },

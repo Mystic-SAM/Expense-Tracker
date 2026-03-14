@@ -38,6 +38,10 @@ export function DataTablePagination(props: DataTablePaginationProps) {
     onPageChange?.(newPage); // Trigger external handler if provided
   };
 
+  if (totalCount === 0) {
+    return null;
+  }
+
   return (
     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 px-2">
       {/* Showing X to Y of Z Rows */}
@@ -71,13 +75,13 @@ export function DataTablePagination(props: DataTablePaginationProps) {
         </div>
 
         {/* Page Info */}
-        <div className="flex items-center">
+        <div className="flex items-center flex-wrap gap-2">
           <div className="flex lg:w-[100px] items-center justify-center text-sm font-medium">
             Page {pageNumber} of {totalPages}
           </div>
 
           {/* Pagination Controls */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 flex-wrap gap-y-1">
             <Button
               variant="outline"
               className=""

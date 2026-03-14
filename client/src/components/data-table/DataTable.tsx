@@ -99,6 +99,7 @@ export function DataTable<TData>(props: DataTableProps<TData>) {
   const table = useReactTable({
     data,
     columns,
+    getRowId: (row: any) => row.id,
     state: {
       sorting,
       columnFilters,
@@ -114,8 +115,9 @@ export function DataTable<TData>(props: DataTableProps<TData>) {
     getFilteredRowModel: getFilteredRowModel(),
   });
 
-  const selectedRows = table.getFilteredSelectedRowModel().rows;
-  const hasSelections = selectedRows.length > 0;
+  const selectedRowIds = Object.keys(rowSelection);
+  const totalSelectedCount = selectedRowIds.length;
+  const hasSelections = totalSelectedCount > 0;
 
   const handleSearch = (value: string) => {
     setSearchTerm(value);
@@ -123,38 +125,55 @@ export function DataTable<TData>(props: DataTableProps<TData>) {
   };
 
   const handleFilterChange = (key: string, value: string) => {
-    const updated = { ...filterValues, [key]: value };
+    const updated = { ...filterValues };
+    if (value === "all") {
+      delete updated[key];
+    } else {
+      updated[key] = value;
+    }
     setFilterValues(updated);
     onFilterChange?.(updated);
   };
 
-  const handleClear = () => {
+  const handleClearSearch = () => {
     setSearchTerm("");
-    setFilterValues({});
     onSearch?.("");
-    onFilterChange?.({});
+  };
+
+  const handleClearSelection = () => {
     setRowSelection({});
   };
 
   const handleDelete = () => {
-    const selectedIds = selectedRows.map((row: any) => (row.original as any).id);
-    onBulkDelete?.(selectedIds);
+    onBulkDelete?.(selectedRowIds);
     setRowSelection({});
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full flex flex-col gap-y-4">
       {/* Top Bar: Search & Filters */}
-      <div className="flex flex-wrap justify-between items-center gap-2 pb-4">
+      <div className="flex flex-wrap justify-between items-center gap-2">
         <div className="flex items-center gap-2 flex-wrap flex-1">
           {showSearch && (
-            <Input
-              placeholder={searchPlaceholder}
-              value={searchTerm}
-              disabled={isLoading}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="max-w-sm"
-            />
+            <div className="relative max-w-sm">
+              <Input
+                placeholder={searchPlaceholder}
+                value={searchTerm}
+                disabled={isLoading}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="pr-8"
+              />
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={handleClearSearch}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="Clear Search"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
           )}
           {filters.map(({ key, label, options }) => (
             <Select
@@ -170,6 +189,7 @@ export function DataTable<TData>(props: DataTableProps<TData>) {
                 </div>
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="all">{label}</SelectItem>
                 {options.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
@@ -179,19 +199,17 @@ export function DataTable<TData>(props: DataTableProps<TData>) {
             </Select>
           ))}
 
-          {(searchTerm ||
-            Object.keys(rowSelection).length > 0 ||
-            Object.keys(filterValues).length > 0) && (
-              <Button
-                variant="ghost"
-                disabled={isLoading || isBulkDeleting}
-                onClick={handleClear}
-                className="h-8 px-2"
-              >
-                <X className="h-4 w-4 mr-1" />
-                Reset
-              </Button>
-            )}
+          {selection && hasSelections && (
+            <Button
+              variant="ghost"
+              disabled={isLoading || isBulkDeleting}
+              onClick={handleClearSelection}
+              className="h-8 px-2"
+            >
+              <X className="h-4 w-4 mr-1" />
+              Clear Selection ({totalSelectedCount})
+            </Button>
+          )}
         </div>
 
         {(selection && hasSelections) || isBulkDeleting ? (
@@ -202,7 +220,7 @@ export function DataTable<TData>(props: DataTableProps<TData>) {
             onClick={handleDelete}
           >
             <Trash className="h-4 w-4 mr-1" />
-            Delete ({selectedRows.length})
+            Delete ({totalSelectedCount})
             {isBulkDeleting && <Loader className="ml-1 h-4 w-4 animate-spin" />}
           </Button>
         ) : null}
@@ -211,7 +229,7 @@ export function DataTable<TData>(props: DataTableProps<TData>) {
       {/* Table */}
       <div className={cn("rounded-md border overflow-x-auto", tableWrapperClassName)}>
         {isLoading ? (
-          <TableSkeleton columns={6} rows={20} />
+          <TableSkeleton columns={6} rows={10} />
         ) : (
           <Table
             className={cn(
@@ -269,16 +287,14 @@ export function DataTable<TData>(props: DataTableProps<TData>) {
 
       {/* Pagination */}
       {isShowPagination && (
-        <div className="mt-4">
-          <DataTablePagination
-            pageNumber={pagination?.pageNumber || 1}
-            pageSize={pagination?.pageSize || 10}
-            totalCount={pagination?.totalItems || 0}
-            totalPages={pagination?.totalPages || 0}
-            onPageChange={onPageChange}
-            onPageSizeChange={onPageSizeChange}
-          />
-        </div>
+        <DataTablePagination
+          pageNumber={pagination?.pageNumber || 1}
+          pageSize={pagination?.pageSize || 10}
+          totalCount={pagination?.totalItems || 0}
+          totalPages={pagination?.totalPages || 0}
+          onPageChange={onPageChange}
+          onPageSizeChange={onPageSizeChange}
+        />
       )}
     </div>
   );
