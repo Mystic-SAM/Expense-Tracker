@@ -66,22 +66,21 @@ const DashboardDataChart: FC<PropsType> = (props) => {
     <Card className="!shadow-none border-1 border-gray-100 dark:border-border !pt-0">
       <CardHeader
         className="flex flex-col items-stretch !space-y-0 border-b border-gray-100
-      dark:border-border !p-0 pr-1 sm:flex-row"
+      dark:border-border !p-0 pr-1 lg:flex-row"
       >
-        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-0 sm:py-0">
+        <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-4 lg:py-0">
           <CardTitle className="text-lg">Transaction Overview</CardTitle>
           <CardDescription>
             <span>Showing total transactions {dateRange?.label}</span>
           </CardDescription>
         </div>
-        <div className="flex">
+        <div className="flex flex-col sm480:flex-row divide-y sm480:divide-y-0 sm480:divide-x border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-border">
           {TRANSACTION_TYPES.map((key) => {
             const chart = key as keyof typeof chartConfig;
             return (
               <div
                 key={chart}
-                className="flex flex-1 flex-col justify-center gap-1 px-6 py-4 text-center even:border-l 
-                sm:border-l border-gray-100 dark:border-border sm:px-4 sm:py-6 min-w-36"
+                className="flex flex-1 flex-col justify-center gap-1 px-6 py-4 text-center sm:px-4 sm:py-6 min-w-36"
               >
                 <span className="w-full block text-xs text-muted-foreground">
                   No of {chartConfig[chart].label}
@@ -230,17 +229,16 @@ const DashboardDataChart: FC<PropsType> = (props) => {
 
 const ChartSkeleton = () => (
   <Card className="!shadow-none border-1 border-gray-100 dark:border-border !pt-0">
-    <CardHeader className="flex flex-col items-stretch !space-y-0 border-b border-gray-100 dark:border-border !p-0 pr-1 sm:flex-row">
-      <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-0 sm:py-0">
+    <CardHeader className="flex flex-col items-stretch !space-y-0 border-b border-gray-100 dark:border-border !p-0 pr-1 lg:flex-row">
+      <div className="flex flex-1 flex-col justify-center gap-1 px-6 py-4 lg:py-0">
         <Skeleton className="h-6 w-48" />
         <Skeleton className="h-4 w-32 mt-1" />
       </div>
-      <div className="flex">
+      <div className="flex flex-col sm:flex-row divide-y sm:divide-y-0 sm:divide-x border-t lg:border-t-0 lg:border-l border-gray-100 dark:border-border">
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="flex flex-1 flex-col justify-center gap-1 px-6 py-4 text-center even:border-l 
-            sm:border-l border-gray-100 dark:border-border sm:px-4 sm:py-6 min-w-36"
+            className="flex flex-1 flex-col justify-center gap-1 px-6 py-4 text-center sm:px-4 sm:py-6 min-w-36"
           >
             <Skeleton className="h-4 w-20 mx-auto" />
             <Skeleton className="h-8 w-24 mx-auto mt-1 sm:h-12" />

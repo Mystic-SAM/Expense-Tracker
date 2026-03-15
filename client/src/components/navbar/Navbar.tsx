@@ -4,7 +4,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { PROTECTED_ROUTES } from "@/routes/common/routePath";
 import { capitalizeFirstLetter, cn } from "@/lib/utils";
 import { Button } from "../ui/button";
-import { Sheet, SheetContent } from "../ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "../ui/sheet";
 import UserNav from "./UserNav";
 import LogoutDialog from "./LogoutDialog";
 import { useTypedSelector } from "@/app/hook";
@@ -56,6 +56,7 @@ const Navbar = () => {
                 className="inline-flex md:hidden !cursor-pointer
                !bg-white/10 !text-white hover:bg-white/10"
                 onClick={() => setIsOpen(true)}
+                aria-label="Toggle Navigation Links Drawer"
               >
                 <Menu className="h-6 w-6" />
               </Button>
@@ -89,18 +90,25 @@ const Navbar = () => {
 
             {/* Mobile Navigation */}
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
-              <SheetContent side="left" className="bg-white">
-                <nav className="flex flex-col gap-y-2 pt-9">
+              <SheetContent side="left" className="sm480:w-1/2">
+                <SheetHeader>
+                  <SheetTitle>Spendlytics</SheetTitle>
+                  <SheetDescription className="sr-only">
+                    Navigation Links
+                  </SheetDescription>
+                </SheetHeader>
+                <nav className="flex flex-col gap-y-2">
                   {routes?.map((route) => (
                     <Button
+                      key={route.href}
                       size="sm"
                       variant="ghost"
                       className={cn(
                         `w-full font-normal py-4.5
-                       hover:bg-white/10 hover:text-black border-none
-                       text-black/70 focus:bg-white/30
-                       transtion !bg-transparent justify-start`,
-                        pathname === route.href && "!bg-black/10 text-black"
+                       hover:bg-secondary hover:text-foreground border-none
+                       text-muted-foreground focus:bg-secondary
+                       transition !bg-transparent justify-start`,
+                        pathname === route.href && "text-foreground !bg-secondary"
                       )}
                       asChild
                     >
