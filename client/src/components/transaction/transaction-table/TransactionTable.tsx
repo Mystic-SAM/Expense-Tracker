@@ -5,6 +5,8 @@ import useDebouncedSearch from "@/hooks/useDebounceSearch";
 import { useState } from "react";
 import { transactionColumns } from "./transactionColumns";
 import { toast } from "sonner";
+import { DateRangeEnum, DateRangeSelect, type DateRangeType } from "@/components/DateRangeSelect";
+import { format } from "date-fns";
 
 type FilterType = {
   type?: TransactionCategoryType | undefined;
@@ -16,13 +18,26 @@ type FilterType = {
 const TransactionTable = (props: {
   pageSize?: number;
   isShowPagination?: boolean;
+  isShowDateFilter?: boolean;
 }) => {
+  const { pageSize, isShowPagination, isShowDateFilter } = props;
   const [filter, setFilter] = useState<FilterType>({
     type: undefined,
     recurringStatus: undefined,
     pageNumber: 1,
-    pageSize: props.pageSize || 10,
+    pageSize: pageSize || 10,
   });
+
+  const [dateRange, setDateRange] = useState<DateRangeType>(
+    isShowDateFilter
+      ? {
+        from: null,
+        to: null,
+        value: DateRangeEnum.ALL_TIME,
+        label: "across All Time",
+      }
+      : null
+  );
 
   const { debouncedTerm, setSearchTerm } = useDebouncedSearch("", {
     delay: 500,
@@ -31,12 +46,36 @@ const TransactionTable = (props: {
   const [bulkDeleteTransaction, { isLoading: isBulkDeleting }] =
     useBulkDeleteTransactionMutation();
 
+  // Build date range query params
+  const dateRangeParams = (() => {
+    if (!isShowDateFilter || !dateRange) return {};
+
+    if (dateRange.value === DateRangeEnum.ALL_TIME) return {};
+
+    if (dateRange.value === DateRangeEnum.CUSTOM && dateRange.from && dateRange.to) {
+      return {
+        dateRangePreset: DateRangeEnum.CUSTOM,
+        customFrom: format(dateRange.from, "yyyy-MM-dd"),
+        customTo: format(dateRange.to, "yyyy-MM-dd"),
+      };
+    }
+
+    if (dateRange.value && dateRange.value !== DateRangeEnum.CUSTOM) {
+      return {
+        dateRangePreset: dateRange.value,
+      };
+    }
+
+    return {};
+  })();
+
   const { data, isFetching } = useGetAllTransactionsQuery({
     keyword: debouncedTerm,
     type: filter.type,
     recurringStatus: filter.recurringStatus,
     pageNumber: filter.pageNumber,
     pageSize: filter.pageSize,
+    ...dateRangeParams,
   });
 
   const transactions = data?.transactions || [];
@@ -89,7 +128,7 @@ const TransactionTable = (props: {
       searchPlaceholder="Search transactions..."
       isLoading={isFetching}
       isBulkDeleting={isBulkDeleting}
-      isShowPagination={props.isShowPagination}
+      isShowPagination={isShowPagination}
       pagination={pagination}
       filters={[
         {
@@ -110,6 +149,16 @@ const TransactionTable = (props: {
           ],
         },
       ]}
+      filterExtra={
+        isShowDateFilter ? (
+          <DateRangeSelect
+            dateRange={dateRange}
+            setDateRange={setDateRange}
+            defaultRange={DateRangeEnum.ALL_TIME}
+            showCustom
+          />
+        ) : null
+      }
       onSearch={handleSearch}
       onPageChange={(pageNumber) => handlePageChange(pageNumber)}
       onPageSizeChange={(pageSize) => handlePageSizeChange(pageSize)}
