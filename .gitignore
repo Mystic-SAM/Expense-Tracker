@@ -39,3 +39,4 @@ temp/
 dist
 dist-ssr
 *.local
+.vite
