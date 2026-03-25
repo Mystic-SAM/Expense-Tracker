@@ -104,7 +104,7 @@ export const getAllTransactionService = async (
     TransactionModel.find(filterConditions)
       .skip(skip)
       .limit(pageSize)
-      .sort({ createdAt: -1 }),
+      .sort({ date: -1 }),
     TransactionModel.countDocuments(filterConditions),
   ]);
 

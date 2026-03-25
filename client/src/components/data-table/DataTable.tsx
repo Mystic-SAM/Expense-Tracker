@@ -9,7 +9,7 @@ import {
   type ColumnFiltersState,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { Loader, PlusCircleIcon, Trash, X } from "lucide-react";
+import { PlusCircleIcon, Trash, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
