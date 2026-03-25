@@ -86,7 +86,7 @@ export function DataTable<TData>(props: DataTableProps<TData>) {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filterValues, setFilterValues] = useState<Record<string, string>>({});
-  const [sorting, setSorting] = useState<SortingState>([]);
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'date', desc: true }]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
@@ -230,6 +230,7 @@ export function DataTable<TData>(props: DataTableProps<TData>) {
           ) : (
             <Table
               className={cn(
+                "data-table",
                 table.getRowModel().rows.length === 0 ? "h-[200px]" : "",
               )}
             >

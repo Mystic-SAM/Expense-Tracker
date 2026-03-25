@@ -1,5 +1,4 @@
 import {
-  ArrowUpDown,
   CircleDot,
   Copy,
   Loader,
@@ -29,6 +28,7 @@ import { useDuplicateTransactionMutation } from "@/features/transaction/transact
 import { toast } from "sonner";
 import DeleteTransactionDialog from "@/components/DeleteTransactionDialog";
 import { useState } from "react";
+import SortIcon from "@/components/SortIcon";
 
 type FrequencyInfo = {
   label: string;
@@ -69,7 +69,7 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
   //       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
   //     >
   //       Date Created
-  //       <ArrowUpDown className="ml-2 h-4 w-4" />
+  //       <SortIcon column={column} />
   //     </Button>
   //   ),
   //   cell: ({ row }) => format(row.getValue("createdAt"), "MMM dd, yyyy"),
@@ -87,7 +87,7 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Type
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        <SortIcon column={column} />
       </Button>
     ),
     cell: ({ row }) => {
@@ -144,7 +144,7 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Transaction Date
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        <SortIcon column={column} />
       </Button>
     ),
     cell: ({ row }) => <div className="text-center">{format(row.original.date, "MMM dd, yyyy")}</div>,
@@ -158,7 +158,7 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Category
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        <SortIcon column={column} />
       </Button>
     ),
     cell: ({ row }) => {
@@ -186,7 +186,7 @@ export const transactionColumns: ColumnDef<TransactionType>[] = [
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Frequency
-        <ArrowUpDown className="ml-2 h-4 w-4" />
+        <SortIcon column={column} />
       </Button>
     ),
     cell: ({ row }) => {
